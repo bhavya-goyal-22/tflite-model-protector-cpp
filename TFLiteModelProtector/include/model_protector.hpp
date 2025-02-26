@@ -32,11 +32,12 @@ class TFLiteModelProtector {
 	void DecryptFileToMemory(const std::string& input_file, std::vector<char>& model_buffer);
 	std::unique_ptr<tflite::FlatBufferModel> LoadModel(const std::vector<char>& model_data);
 	std::unique_ptr<tflite::FlatBufferModel> LoadEncryptedModel(const std::string& model_path);
+	void GenerateKeyAndIv(std::vector<uint8_t>& key, std::vector<uint8_t>& iv);
+	void SetCustomKeyAndIv(const std::vector<uint8_t>& key, const std::vector<uint8_t>& iv);
 
    private:
-	static constexpr uint8_t kEncryptionKey[kAesKeyLength] = {};
-
-	static constexpr uint8_t kEncryptionIv[kAesIvLength] = {};
+	uint8_t kEncryptionKey[kAesKeyLength] = {};
+	uint8_t kEncryptionIv[kAesIvLength] = {};
 
 	static std::mutex mutex_;
 	std::vector<char> model_buffer_;  // This is the decrypted model data in memory
