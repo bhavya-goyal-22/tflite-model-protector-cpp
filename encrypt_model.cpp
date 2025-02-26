@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
 	std::vector<uint8_t> iv(TFLiteModelProtector::kAesIvLength);
 
 	model_protector.GenerateKeyAndIv(key, iv);
-	
+
 	if (!model_protector.EncryptFile(input_file, encrypted_file)) {
 		std::cerr << "Encryption failed!" << std::endl;
 		return 1;

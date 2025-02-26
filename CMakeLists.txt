@@ -8,7 +8,6 @@ project("TFLiteModelProtector")
 
 add_subdirectory(TFLiteModelProtector)
 
-
 # ######################### for tflite model encryption
 add_executable(
         encrypt_model
