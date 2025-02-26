@@ -122,7 +122,8 @@ std::unique_ptr<tflite::FlatBufferModel> TFLiteModelProtector::LoadEncryptedMode
  * This function uses the OpenSSL RAND_bytes function to generate a random AES key and IV.
  * The generated key and IV are stored in the provided vectors.
  *
- * @param key A vector to store the generated AES key. The size of the vector should be kAesKeyLength.
+ * @param key A vector to store the generated AES key. The size of the vector should be
+ * kAesKeyLength.
  * @param iv A vector to store the generated AES IV. The size of the vector should be kAesIvLength.
  *
  * @throws std::runtime_error if the key or IV generation fails.
@@ -148,7 +149,8 @@ void TFLiteModelProtector::GenerateKeyAndIv(std::vector<uint8_t>& key, std::vect
 }
 
 /**
- * @brief Sets a custom encryption key and initialization vector (IV) for the TFLite model protector.
+ * @brief Sets a custom encryption key and initialization vector (IV) for the TFLite model
+ * protector.
  *
  * This function allows the user to specify a custom AES encryption key and IV to be used for
  * encrypting and decrypting the TFLite model. The key and IV must have lengths equal to the
