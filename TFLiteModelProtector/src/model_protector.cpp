@@ -1,4 +1,3 @@
-
 #include "model_protector.hpp"
 
 std::mutex TFLiteModelProtector::mutex_;
@@ -13,7 +12,8 @@ std::mutex TFLiteModelProtector::mutex_;
  * @param output_file The path to the output file where the encrypted data will be written.
  * @return true if the encryption and file writing were successful, false otherwise.
  */
-bool TFLiteModelProtector::EncryptFile(const std::string& input_file, const std::string& output_file) {
+bool TFLiteModelProtector::EncryptFile(const std::string& input_file,
+									   const std::string& output_file) {
 	std::ifstream in(input_file, std::ios::binary);
 	std::ofstream out(output_file, std::ios::binary);
 
@@ -55,7 +55,7 @@ bool TFLiteModelProtector::EncryptFile(const std::string& input_file, const std:
  * @note If the file cannot be opened, an error message is logged and the function returns.
  */
 void TFLiteModelProtector::DecryptFileToMemory(const std::string& input_file,
-										   std::vector<char>& model_data) {
+											   std::vector<char>& model_data) {
 	std::ifstream in(input_file, std::ios::binary);
 
 	if (!in) {
@@ -114,4 +114,73 @@ std::unique_ptr<tflite::FlatBufferModel> TFLiteModelProtector::LoadEncryptedMode
 		LOGE("Exception caught: " + std::string(e.what()));
 		return nullptr;
 	}
+}
+
+/**
+ * @brief Generates a random AES key and initialization vector (IV).
+ *
+ * This function uses the OpenSSL RAND_bytes function to generate a random AES key and IV.
+ * The generated key and IV are stored in the provided vectors.
+ *
+ * @param key A vector to store the generated AES key. The size of the vector should be kAesKeyLength.
+ * @param iv A vector to store the generated AES IV. The size of the vector should be kAesIvLength.
+ *
+ * @throws std::runtime_error if the key or IV generation fails.
+ */
+void TFLiteModelProtector::GenerateKeyAndIv(std::vector<uint8_t>& key, std::vector<uint8_t>& iv) {
+	if (!RAND_bytes(key.data(), kAesKeyLength) || !RAND_bytes(iv.data(), kAesIvLength)) {
+		throw std::runtime_error("Failed to generate key or IV");
+	}
+
+	std::ostringstream key_stream;
+	key_stream << "Generated Key: ";
+	for (const auto& byte : key) {
+		key_stream << std::hex << static_cast<int>(byte) << " ";
+	}
+	LOGI(key_stream.str());
+
+	std::ostringstream iv_stream;
+	iv_stream << "Generated IV: ";
+	for (const auto& byte : iv) {
+		iv_stream << std::hex << static_cast<int>(byte) << " ";
+	}
+	LOGI(iv_stream.str());
+}
+
+/**
+ * @brief Sets a custom encryption key and initialization vector (IV) for the TFLite model protector.
+ *
+ * This function allows the user to specify a custom AES encryption key and IV to be used for
+ * encrypting and decrypting the TFLite model. The key and IV must have lengths equal to the
+ * predefined constants kAesKeyLength and kAesIvLength, respectively.
+ *
+ * @param key A vector of bytes representing the custom AES encryption key. The size of the vector
+ *            must be equal to kAesKeyLength.
+ * @param iv  A vector of bytes representing the custom AES initialization vector. The size of the
+ *            vector must be equal to kAesIvLength.
+ *
+ * @throws std::invalid_argument If the size of the key or IV does not match the required length.
+ */
+void TFLiteModelProtector::SetCustomKeyAndIv(const std::vector<uint8_t>& key,
+											 const std::vector<uint8_t>& iv) {
+	if (key.size() != kAesKeyLength || iv.size() != kAesIvLength) {
+		throw std::invalid_argument("Invalid key or IV length");
+	}
+
+	std::copy(key.begin(), key.end(), kEncryptionKey);
+	std::copy(iv.begin(), iv.end(), kEncryptionIv);
+
+	std::ostringstream key_stream;
+	key_stream << "Custom Key set: ";
+	for (const auto& byte : key) {
+		key_stream << std::hex << static_cast<int>(byte) << " ";
+	}
+	LOGI(key_stream.str());
+
+	std::ostringstream iv_stream;
+	iv_stream << "Custom IV set: ";
+	for (const auto& byte : iv) {
+		iv_stream << std::hex << static_cast<int>(byte) << " ";
+	}
+	LOGI(iv_stream.str());
 }
